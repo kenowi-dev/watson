@@ -1,4 +1,4 @@
-package com.github.kenowidev.watson
+package dev.kenowi.watson
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

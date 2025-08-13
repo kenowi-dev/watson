@@ -1,15 +1,35 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.kenowidev.watson</id>
-    <name>watson</name>
+    <id>dev.kenowi.watson</id>
+    <name>Watson</name>
     <vendor>kenowi-dev</vendor>
 
+
+    <depends>JavaScript</depends>
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
+
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.kenowidev.watson.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.kenowidev.watson.startup.MyProjectActivity" />
+        <intentionAction>
+            <categoryKey>inlang.messages.intention.category</categoryKey>
+            <language>SvelteHTML</language>
+            <className>dev.kenowi.watson.intention.ExtractInlangMessageIntention</className>
+
+        </intentionAction>
+        <toolWindow factoryClass="dev.kenowi.watson.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <postStartupActivity implementation="dev.kenowi.watson.listeners.StartupPopup" />
+        <notificationGroup id="MyPlugin Notifications"
+                           displayType="BALLOON"
+                           isLogByDefault="false"
+                           key="inlang.messages.notifications"/>
+
+        <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              isEnabledByDefault="true"
+                                              language="SvelteHTML"
+                                              nameKey="inlang.messages.inlay.provider"
+                                              providerId="inlang-values"/>
     </extensions>
 </idea-plugin>

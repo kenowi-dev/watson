@@ -1,9 +1,9 @@
-package com.github.kenowidev.watson.services
+package dev.kenowi.watson.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.kenowidev.watson.MyBundle
+import dev.kenowi.watson.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {
