@@ -36,6 +36,6 @@
                 instance="dev.kenowi.watson.settings.SettingConfigurable"
                 id="com.example.ApplicationSettingsConfigurable"
                 key="watson.messages.settings.name"/>
-        <applicationService serviceImplementation="dev.kenowi.watson.settings.AppSettings"/>
+
     </extensions>
 </idea-plugin>
