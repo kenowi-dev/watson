@@ -9,6 +9,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.Watson</resource-bundle>
+    <resource-bundle>messages.WatsonMainBundle</resource-bundle>
+    <resource-bundle>messages.WatsonSettingsBundle</resource-bundle>
 
 
     <extensions defaultExtensionNs="com.intellij">
@@ -31,11 +33,13 @@
                                               language="SvelteHTML"
                                               nameKey="watson.messages.inlay.provider"
                                               providerId="inlang-values"/>
-        <applicationConfigurable
+        <projectConfigurable
                 parentId="tools"
                 instance="dev.kenowi.watson.settings.SettingConfigurable"
                 id="com.example.ApplicationSettingsConfigurable"
                 key="watson.messages.settings.name"/>
-        <applicationService serviceImplementation="dev.kenowi.watson.settings.AppSettings"/>
+
+        <applicationSettings service="dev.kenowi.watson.settings.WatsonSettings"/>
+        <projectSettings service="dev.kenowi.watson.settings.MySettingsService"/>
     </extensions>
 </idea-plugin>
