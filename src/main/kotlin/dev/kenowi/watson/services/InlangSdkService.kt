@@ -14,13 +14,13 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import java.io.IOException
 
-@Service
-internal class InlangSdkService() {
+@Service(Service.Level.PROJECT)
+internal class InlangSdkService(private val project: Project) {
     companion object {
-        fun getInstance(): InlangSdkService = service()
+        fun getInstance(project: Project): InlangSdkService = project.service()
     }
 
-    fun isNodeAvailable(project: Project): NodeJsInterpreter? {
+    fun isNodeAvailable(): NodeJsInterpreter? {
         val interpreter = NodeJsInterpreterManager.getInstance(project).interpreter
 
         if (interpreter == null) {
@@ -31,7 +31,7 @@ internal class InlangSdkService() {
         return null
     }
 
-    fun executeInlineScript(project: Project, interpreter: NodeJsInterpreter): String? {
+    fun executeInlineScript(interpreter: NodeJsInterpreter): String? {
 
         val configurator = NodeCommandLineConfigurator.find(interpreter)
         val commandLine = GeneralCommandLine()
@@ -55,9 +55,9 @@ internal class InlangSdkService() {
         return output.stdout.trim { it <= ' ' }
     }
 
-    fun executeJsScript(project: Project, interpreter: NodeJsInterpreter): String? {
+    fun executeJsScript(interpreter: NodeJsInterpreter): String? {
         try {
-            val scriptFile = createOrGetScriptFile(project)
+            val scriptFile = createOrGetScriptFile()
 
             val configurator = NodeCommandLineConfigurator.find(interpreter)
             val commandLine = GeneralCommandLine()
@@ -80,9 +80,9 @@ internal class InlangSdkService() {
         }
     }
 
-    fun isSdkAvailable(project: Project): Boolean {
-        val inlangAvailable = isPackageAvailable(project, "@inlang")
-        val inlangSdkAvailable = isPackageAvailable(project, "@inlang/sdk")
+    fun isSdkAvailable(): Boolean {
+        val inlangAvailable = isPackageAvailable("@inlang")
+        val inlangSdkAvailable = isPackageAvailable("@inlang/sdk")
         if (!inlangAvailable && !inlangSdkAvailable) {
             Messages.showErrorDialog(project, "Inlang sdk not available", "Error")
             return false
@@ -90,7 +90,7 @@ internal class InlangSdkService() {
         return true
     }
 
-    private fun isPackageAvailable(project: Project, packageName: String): Boolean {
+    private fun isPackageAvailable(packageName: String): Boolean {
 
         val projectPath = project.basePath ?: return false
         val projectDir = LocalFileSystem.getInstance().findFileByPath(projectPath) ?: return false
@@ -102,8 +102,8 @@ internal class InlangSdkService() {
     }
 
     @Throws(IOException::class)
-    private fun createOrGetScriptFile(project: Project?): VirtualFile {
-        val projectPath: String = project!!.basePath
+    private fun createOrGetScriptFile(): VirtualFile {
+        val projectPath: String = project.basePath
             ?: throw IOException("Could not determine project directory")
 
         val projectDir = LocalFileSystem.getInstance().findFileByPath(projectPath)

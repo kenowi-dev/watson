@@ -1,4 +1,4 @@
-package dev.kenowi.watson.bundles
+package dev.kenowi.watson
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.Nls
@@ -7,10 +7,10 @@ import org.jetbrains.annotations.PropertyKey
 import java.util.function.Supplier
 
 @NonNls
-private const val BUNDLE = "messages.WatsonMainBundle"
+private const val BUNDLE = "messages.WatsonMessageBundle"
 
-internal object WatsonMainBundle {
-    private val instance = DynamicBundle(WatsonMainBundle::class.java, BUNDLE)
+internal object WatsonMessageBundle {
+    private val instance = DynamicBundle(WatsonMessageBundle::class.java, BUNDLE)
 
     @JvmStatic
     fun message(key: @PropertyKey(resourceBundle = BUNDLE) String, vararg params: Any): @Nls String {

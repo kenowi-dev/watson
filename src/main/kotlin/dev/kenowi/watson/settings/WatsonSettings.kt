@@ -5,9 +5,10 @@ import com.intellij.openapi.project.Project
 import kotlinx.serialization.Serializable
 
 @Service(Service.Level.PROJECT)
-@State(name = "WatsonSettings", storages = [Storage("watsonsettings.xml")])
-internal class WatsonSettings(private val project: Project) :
+@State(name = "WatsonSettings", storages = [Storage("watsonsettings.json")])
+internal class WatsonSettings(project: Project) :
     SerializablePersistentStateComponent<WatsonSettingsState>(WatsonSettingsState(project)) {
+
     companion object {
         fun getInstance(project: Project): WatsonSettings = project.service()
     }
@@ -23,7 +24,7 @@ internal class WatsonSettings(private val project: Project) :
         set(value) {
             updateState { it.copy(inlangLocation = value) }
         }
-    
+
     var demoSetting: String
         get() = state.demoSetting
         set(value) {
