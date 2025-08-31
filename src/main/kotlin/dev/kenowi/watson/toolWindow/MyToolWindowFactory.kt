@@ -1,38 +1,48 @@
 package dev.kenowi.watson.toolWindow
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import com.intellij.ui.components.JBLabel
-import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import javax.swing.JButton
+import com.intellij.ui.dsl.builder.panel
+import dev.kenowi.watson.services.InlangSdkService
 
 
-class MyToolWindowFactory : ToolWindowFactory {
-
+class MyToolWindowFactory() : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val myToolWindow = MyToolWindow(toolWindow)
-        val content = ContentFactory.getInstance().createContent(myToolWindow.getContent(), null, false)
-        toolWindow.contentManager.addContent(content)
+        val inlangSdkService = InlangSdkService.getInstance(project)
+
+        val panel = panel {
+            row {
+                label("Watson tool window")
+            }
+            row {
+                textField().label("Text field")
+            }
+            row {
+                button("Compile Messages In Console") {
+                    inlangSdkService.compileMessageInConsole()
+                }
+                button("Compile Messages In Background") {
+                    inlangSdkService.compileMessagesBackground()
+                }
+            }
+        }
+
+
+        SimpleToolWindowPanel(true, true)
+            .apply { setContent(panel) }
+            .let {
+                ContentFactory
+                    .getInstance()
+                    .createContent(it, null, false)
+            }
+            .let { toolWindow.contentManager.addContent(it) }
+
+
     }
 
     override fun shouldBeAvailable(project: Project) = true
-
-    class MyToolWindow(toolWindow: ToolWindow) {
-
-        private val project = toolWindow.project
-
-        fun getContent() = JBPanel<JBPanel<*>>().apply {
-            val label = JBLabel("Random ?")
-
-            add(label)
-            add(JButton("Shuffel").apply {
-                addActionListener {
-                    label.text = "Random Label 1"
-                }
-            })
-        }
-    }
 }
