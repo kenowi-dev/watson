@@ -17,10 +17,14 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import dev.kenowi.watson.settings.WatsonSettings
 import java.nio.charset.StandardCharsets
 
 @Service(Service.Level.PROJECT)
 internal class InlangSdkService(private val project: Project) {
+
+    val settings = WatsonSettings.getInstance(project)
+
     companion object {
         fun getInstance(project: Project): InlangSdkService = project.service()
     }
@@ -107,7 +111,14 @@ internal class InlangSdkService(private val project: Project) {
         commandLine.exePath = if (SystemInfo.isWindows) "npx.cmd" else "npx"
         // TODO this should be compile --project ./project.inlang --outdir ./src/lib/paraglide
         //  But project and outdir needs to be read from vite.config.ts
-        commandLine.addParameters(paraglideJs, "compile")
+        commandLine.addParameters(
+            paraglideJs,
+            "compile",
+            "--project",
+            settings.inlangProject,
+            "--outdir",
+            settings.inlangOutDir,
+        )
         return commandLine
     }
 

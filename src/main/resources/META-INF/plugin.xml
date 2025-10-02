@@ -38,12 +38,35 @@
             <className>dev.kenowi.watson.intention.ExtractInlangMessageIntention</className>
         </intentionAction>
 
+
         <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
                                               implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
                                               isEnabledByDefault="true"
                                               language="SvelteHTML"
                                               nameKey="inlay.name"
                                               providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+        <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              isEnabledByDefault="true"
+                                              language="TypeScript"
+                                              nameKey="inlay.name"
+                                              providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+        <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              isEnabledByDefault="true"
+                                              language="JavaScript"
+                                              nameKey="inlay.name"
+                                              providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+
+        <lang.foldingBuilder
+                language="JavaScript"
+                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
+        <lang.foldingBuilder
+                language="TypeScript"
+                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
+        <lang.foldingBuilder
+                language="SvelteHTML"
+                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
 
         <notificationGroup id="Watson Notifications"
                            displayType="BALLOON"

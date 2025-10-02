@@ -19,29 +19,45 @@ internal class WatsonSettings(project: Project) :
             updateState { it.copy(humanID = value) }
         }
 
-    var inlangLocation: String
-        get() = state.inlangLocation
+    var useInlayHints: Boolean
+        get() = state.useInlayHints
         set(value) {
-            updateState { it.copy(inlangLocation = value) }
+            updateState { it.copy(useInlayHints = value) }
         }
 
-    var demoSetting: String
-        get() = state.demoSetting
+    var inlangProject: String
+        get() = state.inlangProject
         set(value) {
-            updateState { it.copy(demoSetting = value) }
+            updateState { it.copy(inlangProject = value) }
+        }
+
+    var inlangSettingsFile: String
+        get() = state.inlangSettingsFile
+        set(value) {
+            updateState { it.copy(inlangSettingsFile = value) }
+        }
+
+    var inlangOutDir: String
+        get() = state.inlangOutDir
+        set(value) {
+            updateState { it.copy(inlangOutDir = value) }
         }
 }
 
 @Serializable
 internal data class WatsonSettingsState(
     var humanID: Boolean = true,
-    var inlangLocation: String = "",
-    var demoSetting: String = ""
+    var inlangProject: String = "",
+    var inlangSettingsFile: String = "",
+    var inlangOutDir: String = "",
+    var useInlayHints: Boolean = false,
 ) {
 
     constructor(project: Project) : this(
         humanID = true,
-        inlangLocation = "${project.basePath}/project.inlang/settings.json"
+        inlangProject = "${project.basePath}/project.inlang",
+        inlangSettingsFile = "settings.json",
+        inlangOutDir = "${project.basePath}/src/lib/paraglide"
     )
 
 }

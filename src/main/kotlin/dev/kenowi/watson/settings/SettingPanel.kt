@@ -15,20 +15,32 @@ private class SettingConfigurable(private val project: Project) :
     override fun createPanel(): DialogPanel {
         val settings = WatsonSettings.getInstance(project)
         return panel {
-            row("inlang location:") {
+            row("Inlang Project Location:") {
                 textFieldWithBrowseButton(
-                    fileChooserDescriptor = FileChooserDescriptorFactory.singleFile(),
+                    fileChooserDescriptor = FileChooserDescriptorFactory.singleDir(),
                     project = project,
                     fileChosen = VirtualFile::getPath,
                 ).columns(COLUMNS_LARGE)
-                    .bindText(settings::inlangLocation)
+                    .bindText(settings::inlangProject)
             }
+
+            row("Inlang Output Directory:") {
+                textFieldWithBrowseButton(
+                    fileChooserDescriptor = FileChooserDescriptorFactory.singleDir(),
+                    project = project,
+                    fileChosen = VirtualFile::getPath,
+                ).columns(COLUMNS_LARGE)
+                    .bindText(settings::inlangOutDir)
+            }
+
             row("HumanID:") {
                 checkBox("")
                     .bindSelected(settings::humanID)
             }
-            row("Demo Setting:") {
-                textField().bindText(settings::demoSetting)
+
+            row("Use inlay hints instead:") {
+                checkBox("")
+                    .bindSelected(settings::useInlayHints)
             }
         }
     }

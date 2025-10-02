@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.dsl.builder.panel
 import dev.kenowi.watson.services.InlangSdkService
+import dev.kenowi.watson.services.InlangSettingsService
 
 
 class MyToolWindowFactory() : ToolWindowFactory {
@@ -14,7 +15,7 @@ class MyToolWindowFactory() : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val inlangSdkService = InlangSdkService.getInstance(project)
 
-        val panel = panel {
+        val mainPanel = panel {
             row {
                 label("Watson tool window")
             }
@@ -29,11 +30,51 @@ class MyToolWindowFactory() : ToolWindowFactory {
                     inlangSdkService.compileMessagesBackground()
                 }
             }
+            group("Inlang Settings (Debug)") {
+                val service = InlangSettingsService.getInstance(project)
+                val settings = service.getSettings()
+
+                row("Status:") {
+                    label(if (settings != null) "✓ Loaded" else "✗ Not found")
+                }
+
+                settings?.let {
+                    row("Base Locale:") {
+                        label(it.baseLocale)
+                    }
+
+                    row("Locales:") {
+                        label(it.locales.joinToString(", "))
+                    }
+
+                    row("Path Pattern:") {
+                        label(it.pathPattern ?: "N/A")
+                    }
+
+                    separator()
+
+                    row {
+                        label("Message Files:")
+                    }
+
+                    service.getAllMessageFilePaths().forEach { (locale, path) ->
+                        row("  $locale:") {
+                            label(path)
+                        }
+                    }
+
+                    row {
+                        button("Invalidate Cache") {
+                            service.invalidateCache()
+                        }
+                    }
+                }
+            }
         }
 
 
         SimpleToolWindowPanel(true, true)
-            .apply { setContent(panel) }
+            .apply { setContent(mainPanel) }
             .let {
                 ContentFactory
                     .getInstance()
