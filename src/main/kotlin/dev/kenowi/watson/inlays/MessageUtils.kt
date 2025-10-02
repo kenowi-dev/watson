@@ -30,7 +30,7 @@ object MessageUtils {
 
     fun loadMessages(project: Project): Map<String, String> {
         val inlangService = InlangSettingsService.getInstance(project)
-        val messagesPath = inlangService.getBaseMessageFilePath() ?: return mutableMapOf()
+        val messagesPath = inlangService.getBaseLocaleMessageFilePath() ?: return mutableMapOf()
 
         val messagesFile = LocalFileSystem.getInstance().findFileByPath(messagesPath)
         if (messagesFile == null || !messagesFile.exists()) {

@@ -25,6 +25,12 @@ internal class WatsonSettings(project: Project) :
             updateState { it.copy(useInlayHints = value) }
         }
 
+    var compileAfterExtract: Boolean
+        get() = state.compileAfterExtract
+        set(value) {
+            updateState { it.copy(compileAfterExtract = value) }
+        }
+
     var inlangProject: String
         get() = state.inlangProject
         set(value) {
@@ -48,15 +54,14 @@ internal class WatsonSettings(project: Project) :
 internal data class WatsonSettingsState(
     var humanID: Boolean = true,
     var inlangProject: String = "",
-    var inlangSettingsFile: String = "",
+    var inlangSettingsFile: String = "settings.json",
     var inlangOutDir: String = "",
     var useInlayHints: Boolean = false,
+    var compileAfterExtract: Boolean = true,
 ) {
 
     constructor(project: Project) : this(
-        humanID = true,
         inlangProject = "${project.basePath}/project.inlang",
-        inlangSettingsFile = "settings.json",
         inlangOutDir = "${project.basePath}/src/lib/paraglide"
     )
 

@@ -7,7 +7,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlAttributeValue
 import com.intellij.psi.xml.XmlText
-import dev.blachut.svelte.lang.psi.SvelteHtmlTag
 
 
 object IntentionUtils {
@@ -74,16 +73,24 @@ object IntentionUtils {
         val p3 = PsiTreeUtil.getParentOfType(element, XmlText::class.java)
         // if element.elementType === XML_ATTRIBUTE_VALUE_TOKEN -> true (But needs to be wrapped into svelte expression {})
         val p4 = PsiTreeUtil.getParentOfType(element, XmlAttributeValue::class.java)
-        val p5 = PsiTreeUtil.getParentOfType(element, SvelteHtmlTag::class.java)
+
+        // SvelteHtmlTag seems to trigger for almost anything and does not fit the purpose
+        //val p5 = PsiTreeUtil.getParentOfType(element, SvelteHtmlTag::class.java)
 
         return when {
             p1 != null -> StringLiteralInfo(p1, p1.stringValue ?: "", true)
             p2 != null -> StringLiteralInfo(p2, p2.innerText ?: "", true)
             p3 != null -> StringLiteralInfo(p3)
             p4 != null -> StringLiteralInfo(p4)
-            p5 != null -> StringLiteralInfo(p5)
+            //p5 != null -> StringLiteralInfo(p5)
             else -> null
         }
+    }
+
+    fun needsSvelteWrapping(element: PsiElement): Boolean {
+        val p1 = PsiTreeUtil.getParentOfType(element, JSLiteralExpression::class.java)
+        val p2 = PsiTreeUtil.getParentOfType(element, TypeScriptLiteralType::class.java)
+        return p1 == null && p2 == null
     }
 
     private fun isStringLiteralText(text: String): Boolean {

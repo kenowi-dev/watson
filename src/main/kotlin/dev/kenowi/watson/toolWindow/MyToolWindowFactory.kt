@@ -57,7 +57,7 @@ class MyToolWindowFactory() : ToolWindowFactory {
                         label("Message Files:")
                     }
 
-                    service.getAllMessageFilePaths().forEach { (locale, path) ->
+                    service.getLocaleMessagesFilePaths().forEach { (locale, path) ->
                         row("  $locale:") {
                             label(path)
                         }

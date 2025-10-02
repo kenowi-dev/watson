@@ -46,12 +46,12 @@ internal class InlangSettingsService(private val project: Project) {
         return "${project.basePath}/$cleanPath"
     }
 
-    fun getBaseMessageFilePath(): String? {
+    fun getBaseLocaleMessageFilePath(): String? {
         val settings = getSettings() ?: return null
         return settings.getMessageFilePath(settings.baseLocale)
     }
 
-    fun getAllMessageFilePaths(): Map<String, String> {
+    fun getLocaleMessagesFilePaths(): Map<String, String> {
         val settings = getSettings() ?: return emptyMap()
 
         return settings.locales.associateWith { locale ->
