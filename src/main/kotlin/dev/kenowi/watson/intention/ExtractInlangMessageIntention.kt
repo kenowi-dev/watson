@@ -17,10 +17,12 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.util.Alarm
 import dev.kenowi.watson.services.InlangSdkService
 import dev.kenowi.watson.services.InlangSettingsService
 import dev.kenowi.watson.services.NotificationService
 import dev.kenowi.watson.settings.WatsonSettings
+import java.util.concurrent.TimeUnit
 
 class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
 
@@ -61,18 +63,16 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
 
         var methodName = humanID.generate()
         if (!IntentionPreviewUtils.isIntentionPreviewActive()) {
-            // TODO handle selection.text and dialog
-            val dialog = HumanIdOptionsDialog(project)
+            val dialog = HumanIdOptionsDialog(project, selection.text)
             if (!dialog.showAndGet()) {
                 return // User cancelled
             }
 
             methodName = dialog.methodName
             val localeMessagesFilePaths = InlangSettingsService.getInstance(project).getLocaleMessagesFilePaths()
-
-            for (entry in dialog.translations) {
-                val locale = entry.key
-                val message = entry.value
+            val locales = InlangSettingsService.getInstance(project).getSettings()?.locales
+            for (locale in locales ?: emptyList()) {
+                val message = dialog.translations[locale] ?: "TODO"
 
                 val messageObject = localeMessagesFilePaths[locale]
                     ?.let { LocalFileSystem.getInstance().findFileByPath(it) }
@@ -93,7 +93,11 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
                 }
             }
             if (WatsonSettings.getInstance(project).compileAfterExtract) {
-                InlangSdkService.getInstance(project).compileMessagesBackground()
+                val alarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD)
+                alarm.addRequest({
+                    InlangSdkService.getInstance(project).compileMessagesBackground()
+                }, TimeUnit.SECONDS.toMillis(2).toInt())
+
             }
         }
 
@@ -114,7 +118,10 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         val element = psiFile.findElementAt(editor.caretModel.offset) ?: return IntentionPreviewInfo.EMPTY
         val selection = getSelection(editor, element)
         val humanID = humanID.generate()
-        val message = "{m.$humanID()}"
+        val message = when {
+            IntentionUtils.needsSvelteWrapping(element) -> "{m.$humanID()}"
+            else -> "m.$humanID()"
+        }
         editor.document.replaceString(selection.start, selection.end, message)
         return IntentionPreviewInfo.DIFF
     }
