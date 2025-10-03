@@ -1,4 +1,4 @@
-package dev.kenowi.watson.inlays
+package dev.kenowi.watson
 
 import com.intellij.lang.javascript.psi.JSCallExpression
 import com.intellij.lang.javascript.psi.JSObjectLiteralExpression
@@ -16,6 +16,7 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlin.collections.iterator
 
 object MessageUtils {
 
@@ -28,7 +29,7 @@ object MessageUtils {
     private var cachedMessages: ImmutableMap<String, String>? = null
     private val cachedMessagesLock = Any()
 
-    fun loadMessages(project: Project): Map<String, String> {
+    fun loadBaseLocaleMessages(project: Project): Map<String, String> {
         val inlangService = InlangSettingsService.getInstance(project)
         val messagesPath = inlangService.getBaseLocaleMessageFilePath() ?: return mutableMapOf()
 
@@ -82,7 +83,7 @@ object MessageUtils {
             }
             // Check if message exists
             val methodName = methodExpression.referenceName ?: return false
-            return loadMessages(resolved.project).containsKey(methodName)
+            return loadBaseLocaleMessages(resolved.project).containsKey(methodName)
         }
 
         return false
@@ -90,12 +91,15 @@ object MessageUtils {
 
     fun getMessageText(element: PsiElement): String {
         if (element is JSCallExpression) {
-            val messages = this.loadMessages(element.project)
-            element.children.find { it is JSReferenceExpression }?.let {
-                val key = it.text.replace("m.", "")
-                val template = messages[key] ?: return element.text
-                val args = extractArguments(element)
-                return replacePlaceholders(template, args)
+            val messages = this.loadBaseLocaleMessages(element.project)
+            val methodExpression = element.methodExpression
+            if (methodExpression is JSReferenceExpression) {
+                val key = methodExpression.referenceName
+                val template = messages[key]
+                if (template != null) {
+                    val args = extractArguments(element)
+                    return replacePlaceholders(template, args)
+                }
             }
         }
         return element.text

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.endOffset
+import dev.kenowi.watson.MessageUtils
 import dev.kenowi.watson.settings.WatsonSettings
 
 

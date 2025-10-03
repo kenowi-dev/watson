@@ -73,6 +73,26 @@
                            isLogByDefault="false"
                            key="notification.group"/>
 
+        <codeInsight.lineMarkerProvider
+                language="JSON"
+                implementationClass="dev.kenowi.watson.navigation.linemarkers.JsonKeyLineMarkerProvider"/>
+
+        <codeInsight.lineMarkerProvider
+                language="JavaScript"
+                implementationClass="dev.kenowi.watson.navigation.linemarkers.MessageMethodLineMarkerProvider"/>
+
+        <psi.referenceContributor
+                language="JSON"
+                implementation="dev.kenowi.watson.navigation.references.JsonKeyReferenceContributor"/>
+
+        <localInspection language="JSON"
+                         shortName="UnusedJsonKey"
+                         displayName="Unused JSON Key"
+                         groupName="Watson Inspections"
+                         enabledByDefault="true"
+                         level="WEAK_WARNING"
+                         implementationClass="dev.kenowi.watson.navigation.inspections.UnusedJsonKeyInspection"/>
+
         <!-- OLD -->
         <toolWindow factoryClass="dev.kenowi.watson.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="dev.kenowi.watson.listeners.StartupPopup" />

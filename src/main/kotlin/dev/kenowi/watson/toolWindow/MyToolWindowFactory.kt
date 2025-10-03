@@ -78,12 +78,21 @@ class MyToolWindowFactory() : ToolWindowFactory {
             .let {
                 ContentFactory
                     .getInstance()
-                    .createContent(it, null, false)
+                    .createContent(
+                        it,
+                        null,
+                        false
+                    )
             }
-            .let { toolWindow.contentManager.addContent(it) }
+            .let {
+                toolWindow.contentManager.addContent(
+                    it
+                )
+            }
 
 
     }
 
-    override fun shouldBeAvailable(project: Project) = true
+    override fun shouldBeAvailable(project: Project) =
+        true
 }
