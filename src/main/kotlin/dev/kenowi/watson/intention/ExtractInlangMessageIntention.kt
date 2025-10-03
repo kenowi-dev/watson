@@ -58,54 +58,53 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
     override fun startInWriteAction(): Boolean = false
 
     override fun invoke(project: Project, editor: Editor, element: PsiElement) {
-
+        if (IntentionPreviewUtils.isIntentionPreviewActive()) {
+            return
+        }
         val selection = getSelection(editor, element)
 
-        var methodName = humanID.generate()
-        if (!IntentionPreviewUtils.isIntentionPreviewActive()) {
-            val dialog = HumanIdOptionsDialog(project, selection.text)
-            if (!dialog.showAndGet()) {
-                return // User cancelled
-            }
-
-            methodName = dialog.methodName
-            val localeMessagesFilePaths = InlangSettingsService.getInstance(project).getLocaleMessagesFilePaths()
-            val locales = InlangSettingsService.getInstance(project).getSettings()?.locales
-            for (locale in locales ?: emptyList()) {
-                val message = dialog.translations[locale] ?: "TODO"
-
-                val messageObject = localeMessagesFilePaths[locale]
-                    ?.let { LocalFileSystem.getInstance().findFileByPath(it) }
-                    ?.let { FileDocumentManager.getInstance().getDocument(it) }
-                    ?.let { PsiDocumentManager.getInstance(project).getPsiFile(it) }
-                    ?.let { it as? JsonFile }
-                    ?.let { it.topLevelValue as? JsonObject }
-
-                if (messageObject == null) {
-                    NotificationService
-                        .getInstance(project)
-                        .warn("Error getting message file: $locale")
-                    return
-                }
-                val newMessage = JsonElementGenerator(project).createProperty(methodName, "\"$message\"")
-                runWriteAction {
-                    JsonPsiUtil.addProperty(messageObject, newMessage, false)
-                }
-            }
-            if (WatsonSettings.getInstance(project).compileAfterExtract) {
-                val alarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD)
-                alarm.addRequest({
-                    InlangSdkService.getInstance(project).compileMessagesBackground()
-                }, TimeUnit.SECONDS.toMillis(2).toInt())
-
-            }
+        val dialog = HumanIdOptionsDialog(project, selection.text)
+        if (!dialog.showAndGet()) {
+            return // User cancelled
         }
 
+        val methodName = dialog.methodName
+        val localeMessagesFilePaths = InlangSettingsService.getInstance(project).getLocaleMessagesFilePaths()
+        val locales = InlangSettingsService.getInstance(project).getSettings()?.locales
+        for (locale in locales ?: emptyList()) {
+            val messageObject = localeMessagesFilePaths[locale]
+                ?.let { LocalFileSystem.getInstance().findFileByPath(it) }
+                ?.let { FileDocumentManager.getInstance().getDocument(it) }
+                ?.let { PsiDocumentManager.getInstance(project).getPsiFile(it) }
+                ?.let { it as? JsonFile }
+                ?.let { it.topLevelValue as? JsonObject }
+
+            if (messageObject == null) {
+                NotificationService
+                    .getInstance(project)
+                    .warn("Error getting message file: $locale")
+                return
+            }
+            val newMessage = JsonElementGenerator(project)
+                .createProperty(methodName, dialog.translations.get(locale).toJsonString())
+            runWriteAction {
+                JsonPsiUtil.addProperty(messageObject, newMessage, false)
+            }
+        }
+        if (WatsonSettings.getInstance(project).compileAfterExtract) {
+            val alarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD)
+            alarm.addRequest({
+                InlangSdkService.getInstance(project).compileMessagesBackground()
+            }, TimeUnit.SECONDS.toMillis(2).toInt())
+
+        }
 
         WriteCommandAction.runWriteCommandAction(project) {
+            val params = parameterString(calculateParameters(dialog.translations), dialog.translations.hasPlural())
+
             val message = when {
-                IntentionUtils.needsSvelteWrapping(element) -> "{m.$methodName()}"
-                else -> "m.$methodName()"
+                IntentionUtils.needsSvelteWrapping(element) -> "{m.$methodName($params)}"
+                else -> "m.$methodName($params)"
             }
 
             editor.document.replaceString(selection.start, selection.end, message)
@@ -118,9 +117,10 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         val element = psiFile.findElementAt(editor.caretModel.offset) ?: return IntentionPreviewInfo.EMPTY
         val selection = getSelection(editor, element)
         val humanID = humanID.generate()
+        val params = parameterString(calculateParameters(selection.text), false)
         val message = when {
-            IntentionUtils.needsSvelteWrapping(element) -> "{m.$humanID()}"
-            else -> "m.$humanID()"
+            IntentionUtils.needsSvelteWrapping(element) -> "{m.$humanID($params)}"
+            else -> "m.$humanID($params)"
         }
         editor.document.replaceString(selection.start, selection.end, message)
         return IntentionPreviewInfo.DIFF
@@ -139,5 +139,32 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         val effectiveElement = IntentionUtils.findStringLiteral(element)!!
 
         return Selection(effectiveElement.startOffset, effectiveElement.endOffset, effectiveElement.content)
+    }
+
+    private fun calculateParameters(txt: String): Set<String> {
+        val regex = "\\{(\\w+)}".toRegex()
+        return regex.findAll(txt).map { it.groupValues[1] }.toSet()
+    }
+
+    private fun calculateParameters(translations: Translations): Set<String> {
+        val txt = translations
+            .translations
+            .values
+            .joinToString(" ") {
+                it.singular + if (it.pluralEnabled) it.plural else ""
+            }
+        return calculateParameters(txt)
+    }
+
+    private fun parameterString(params: Set<String>, hasPlural: Boolean): String {
+        return params
+            .plus(if (hasPlural) setOf("count") else emptySet())
+            .joinToString(", ", "{ ", " }") {
+                if (it == "count") {
+                    "$it: 0"
+                } else {
+                    "$it: ''"
+                }
+            }
     }
 }

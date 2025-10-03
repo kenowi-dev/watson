@@ -1,5 +1,8 @@
 package dev.kenowi.watson.navigation.references
 
+import com.intellij.json.psi.JsonFile
+import com.intellij.json.psi.JsonProperty
+import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PatternCondition
@@ -25,6 +28,13 @@ class JsonKeyReferenceContributor : PsiReferenceContributor() {
     ) : PsiPolyVariantReferenceBase<JsonStringLiteral>(element, TextRange(1, element.textLength - 1)) {
 
         override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
+            if (myElement.parent !is JsonProperty
+                || (myElement.parent as JsonProperty).nameElement != myElement
+                || myElement.parent.parent !is JsonObject
+                || myElement.parent.parent.parent !is JsonFile) {
+                return emptyArray()
+            }
+
             val project = myElement.project
             val results = JsFunctionUsageIndex.findFunctionCallsByName(project, key)
 

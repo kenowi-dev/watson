@@ -5,6 +5,8 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.codeInsight.navigation.impl.PsiTargetPresentationRenderer
 import com.intellij.icons.AllIcons
+import com.intellij.json.psi.JsonFile
+import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiElement
 import dev.kenowi.watson.navigation.JsFunctionUsageIndex
@@ -16,6 +18,10 @@ class JsonKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
         if (element !is JsonProperty) {
+            return
+        }
+
+        if (element.parent !is JsonObject || element.parent.parent !is JsonFile) {
             return
         }
 

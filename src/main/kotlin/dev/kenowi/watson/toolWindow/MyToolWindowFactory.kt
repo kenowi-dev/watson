@@ -6,6 +6,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.dsl.builder.panel
+import dev.kenowi.watson.MessageUtils
 import dev.kenowi.watson.services.InlangSdkService
 import dev.kenowi.watson.services.InlangSettingsService
 
@@ -66,6 +67,7 @@ class MyToolWindowFactory() : ToolWindowFactory {
                     row {
                         button("Invalidate Cache") {
                             service.invalidateCache()
+                            MessageUtils.clearCache()
                         }
                     }
                 }

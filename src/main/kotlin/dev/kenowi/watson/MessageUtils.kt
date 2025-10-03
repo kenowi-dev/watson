@@ -7,16 +7,15 @@ import com.intellij.lang.javascript.psi.JSReferenceExpression
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiElement
+import com.jetbrains.rd.util.first
 import dev.kenowi.watson.services.InlangSettingsService
+import dev.kenowi.watson.services.NotificationService
 import dev.kenowi.watson.settings.WatsonSettings
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.io.IOException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlin.collections.iterator
+import kotlinx.serialization.json.*
 
 object MessageUtils {
 
@@ -28,6 +27,13 @@ object MessageUtils {
     private var lastModificationStamp: Long = -1
     private var cachedMessages: ImmutableMap<String, String>? = null
     private val cachedMessagesLock = Any()
+
+    fun clearCache() {
+        synchronized(cachedMessagesLock) {
+            cachedMessages = null
+            lastModificationStamp = -1
+        }
+    }
 
     fun loadBaseLocaleMessages(project: Project): Map<String, String> {
         val inlangService = InlangSettingsService.getInstance(project)
@@ -48,7 +54,12 @@ object MessageUtils {
                         val rootObject = jsonElement.jsonObject
 
                         for ((key, value) in rootObject) {
-                            messages[key] = value.jsonPrimitive.content
+                            val msg = parseMessageObject(value)
+                            if (msg == null) {
+                                NotificationService.getInstance(project).error("Unsupported message format: $key")
+                                continue
+                            }
+                            messages[key] = msg
                         }
                         cachedMessages = messages.toImmutableMap()
                         lastModificationStamp = currentStamp
@@ -103,6 +114,23 @@ object MessageUtils {
             }
         }
         return element.text
+    }
+
+    private fun parseMessageObject(value: JsonElement): String? {
+        val match = when (value) {
+            is JsonPrimitive -> return value.jsonPrimitive.content
+            is JsonObject -> value.jsonObject["match"]
+            is JsonArray if value.jsonArray.isNotEmpty() -> value.jsonArray[0].jsonObject["match"]
+            else -> return null
+        }
+        if (match !is JsonObject || match.jsonObject.isEmpty()) {
+            return null
+        }
+        val msg = match.jsonObject.first().value
+        if (msg !is JsonPrimitive) {
+            return null
+        }
+        return msg.jsonPrimitive.content
     }
 
     private fun extractArguments(callExpression: JSCallExpression): Map<String, String> {

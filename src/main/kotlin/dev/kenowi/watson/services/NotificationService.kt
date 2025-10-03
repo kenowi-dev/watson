@@ -34,4 +34,15 @@ internal class NotificationService(private val project: Project) {
             )
             .notify(project)
     }
+
+    fun error(msg: String) {
+        NotificationGroupManager.getInstance()
+            .getNotificationGroup("Watson Notifications")
+            .createNotification(
+                "Watson",
+                msg,
+                NotificationType.ERROR
+            )
+            .notify(project)
+    }
 }

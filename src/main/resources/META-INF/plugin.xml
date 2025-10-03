@@ -90,7 +90,7 @@
                          displayName="Unused JSON Key"
                          groupName="Watson Inspections"
                          enabledByDefault="true"
-                         level="WEAK_WARNING"
+                         level="INFO"
                          implementationClass="dev.kenowi.watson.navigation.inspections.UnusedJsonKeyInspection"/>
 
         <!-- OLD -->
