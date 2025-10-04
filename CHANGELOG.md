@@ -4,4 +4,8 @@
 
 ## [Unreleased]
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Intential Action to Extract Messages
+- Pluralization Option
+- Unused Message Inspection
+- Line Markers for message methods and keys
+- References for Message Keys
