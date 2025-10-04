@@ -9,9 +9,10 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.lang.javascript.psi.JSCallExpression
 import com.intellij.lang.javascript.psi.JSReferenceExpression
 import com.intellij.psi.PsiElement
-import dev.kenowi.watson.navigation.MessageNameIndex
+import dev.kenowi.watson.WatsonMessageBundle
+import dev.kenowi.watson.utils.ParaglideMessageKeyIndex
 
-class MessageMethodLineMarkerProvider : RelatedItemLineMarkerProvider() {
+class ParaglideMessageMethodLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
@@ -34,8 +35,8 @@ class MessageMethodLineMarkerProvider : RelatedItemLineMarkerProvider() {
 
         val marker = NavigationGutterIconBuilder
             .create(AllIcons.General.Language)
-            .setTargets(MessageNameIndex.findMessageNames(referenceName, element.project))
-            .setTooltipText("Navigate to message")
+            .setTargets(ParaglideMessageKeyIndex.findMessageNames(referenceName, element.project))
+            .setTooltipText(WatsonMessageBundle.message("markers.message.navigate", referenceName))
             .setTargetRenderer {
                 object : PsiTargetPresentationRenderer<PsiElement>() {
                     override fun getElementText(element: PsiElement): String {

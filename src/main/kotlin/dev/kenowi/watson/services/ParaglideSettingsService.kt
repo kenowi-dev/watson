@@ -11,10 +11,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Service(Service.Level.PROJECT)
-internal class InlangSettingsService(private val project: Project) {
+internal class ParaglideSettingsService(private val project: Project) {
 
     private val settings = WatsonSettings.getInstance(project)
-    private val notificationService = NotificationService.getInstance(project)
+    private val notificationService = WatsonNotificationService.getInstance(project)
     private val json = Json {
         ignoreUnknownKeys = true // Ignore fields not in data class
         isLenient = true
@@ -24,7 +24,7 @@ internal class InlangSettingsService(private val project: Project) {
     private var lastModificationStamp: Long = -1
 
     companion object {
-        fun getInstance(project: Project): InlangSettingsService = project.service()
+        fun getInstance(project: Project): ParaglideSettingsService = project.service()
     }
 
     @Serializable

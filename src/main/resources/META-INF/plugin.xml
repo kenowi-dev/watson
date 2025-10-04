@@ -17,8 +17,8 @@
 
         <projectConfigurable
                 parentId="tools"
-                instance="dev.kenowi.watson.settings.SettingConfigurable"
-                id="dev.kenowi.watson.settings.SettingConfigurable"
+                instance="dev.kenowi.watson.settings.WatsonSettingsConfigurable"
+                id="dev.kenowi.watson.settings.WatsonSettingsConfigurable"
                 key="name"/>
 
         <intentionAction>
@@ -35,73 +35,69 @@
             <language>ECMAScript 6</language>
             <language>ECMA Script Level 4</language>
             -->
-            <className>dev.kenowi.watson.intention.ExtractInlangMessageIntention</className>
+            <className>dev.kenowi.watson.intention.ExtractParaglideMessageIntention</className>
         </intentionAction>
 
 
         <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
-                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"
                                               isEnabledByDefault="true"
                                               language="SvelteHTML"
                                               nameKey="inlay.name"
-                                              providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+                                              providerId="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"/>
         <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
-                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"
                                               isEnabledByDefault="true"
                                               language="TypeScript"
                                               nameKey="inlay.name"
-                                              providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+                                              providerId="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"/>
         <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
-                                              implementationClass="dev.kenowi.watson.inlays.ParaglideInlayHints"
+                                              implementationClass="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"
                                               isEnabledByDefault="true"
                                               language="JavaScript"
                                               nameKey="inlay.name"
-                                              providerId="dev.kenowi.watson.inlays.ParaglideInlayHints"/>
+                                              providerId="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"/>
 
         <lang.foldingBuilder
                 language="JavaScript"
-                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
+                implementationClass="dev.kenowi.watson.inlays.ParaglideMessageFoldingBuilder"/>
         <lang.foldingBuilder
                 language="TypeScript"
-                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
+                implementationClass="dev.kenowi.watson.inlays.ParaglideMessageFoldingBuilder"/>
         <lang.foldingBuilder
                 language="SvelteHTML"
-                implementationClass="dev.kenowi.watson.inlays.ParaglideFoldingBuilder"/>
+                implementationClass="dev.kenowi.watson.inlays.ParaglideMessageFoldingBuilder"/>
+
+        <codeInsight.lineMarkerProvider
+                language="JSON"
+                implementationClass="dev.kenowi.watson.navigation.linemarkers.ParaglideMessageKeyLineMarkerProvider"/>
+
+        <codeInsight.lineMarkerProvider
+                language="JavaScript"
+                implementationClass="dev.kenowi.watson.navigation.linemarkers.ParaglideMessageMethodLineMarkerProvider"/>
+
+        <psi.referenceContributor
+                language="JSON"
+                implementation="dev.kenowi.watson.navigation.references.ParaglideMessageKeyReferenceContributor"/>
+
+        <localInspection language="JSON"
+                         shortName="UnusedParaglideMessageInspection"
+                         key="inspection.display.name"
+                         groupKey="inspection.category"
+                         enabledByDefault="true"
+                         level="INFO"
+                         implementationClass="dev.kenowi.watson.navigation.inspections.UnusedParaglideMessageInspection"/>
 
         <notificationGroup id="Watson Notifications"
                            displayType="BALLOON"
                            isLogByDefault="false"
                            key="notification.group"/>
 
-        <codeInsight.lineMarkerProvider
-                language="JSON"
-                implementationClass="dev.kenowi.watson.navigation.linemarkers.JsonKeyLineMarkerProvider"/>
-
-        <codeInsight.lineMarkerProvider
-                language="JavaScript"
-                implementationClass="dev.kenowi.watson.navigation.linemarkers.MessageMethodLineMarkerProvider"/>
-
-        <psi.referenceContributor
-                language="JSON"
-                implementation="dev.kenowi.watson.navigation.references.JsonKeyReferenceContributor"/>
-
-        <localInspection language="JSON"
-                         shortName="UnusedJsonKey"
-                         displayName="Unused JSON Key"
-                         groupName="Watson Inspections"
-                         enabledByDefault="true"
-                         level="INFO"
-                         implementationClass="dev.kenowi.watson.navigation.inspections.UnusedJsonKeyInspection"/>
-
-        <!-- OLD -->
-        <toolWindow factoryClass="dev.kenowi.watson.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="dev.kenowi.watson.listeners.StartupPopup" />
-
+        <!-- Dev Only -->
         <!--
-
+        <toolWindow factoryClass="dev.kenowi.watson.dev.MyToolWindowFactory" id="MyToolWindow"/>
+        <postStartupActivity implementation="dev.kenowi.watson.dev.StartupPopup" />
         -->
-
-
 
     </extensions>
 </idea-plugin>

@@ -9,10 +9,11 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiElement
-import dev.kenowi.watson.navigation.JsFunctionUsageIndex
-import dev.kenowi.watson.services.InlangSettingsService
+import dev.kenowi.watson.WatsonMessageBundle
+import dev.kenowi.watson.utils.ParaglideFunctionUsageIndex
+import dev.kenowi.watson.services.ParaglideSettingsService
 
-class JsonKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
+class ParaglideMessageKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
@@ -25,7 +26,7 @@ class JsonKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
             return
         }
 
-        val messageFilePaths = InlangSettingsService
+        val messageFilePaths = ParaglideSettingsService
             .getInstance(element.project)
             .getLocaleMessagesFilePaths()
             .values
@@ -35,7 +36,7 @@ class JsonKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
         }
 
         val keyName = element.name
-        val findFunctionCallsByName = JsFunctionUsageIndex.findFunctionCallsByName(element.project, keyName)
+        val findFunctionCallsByName = ParaglideFunctionUsageIndex.findFunctionCallsByName(element.project, keyName)
 
         if (findFunctionCallsByName.isEmpty()) {
             return
@@ -47,7 +48,7 @@ class JsonKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
             //.create(AllIcons.Gutter.ImplementingFunctionalInterface)
             //.create(AllIcons.Nodes.Function)
             .setTargets(findFunctionCallsByName)
-            .setTooltipText("Navigate to function: $keyName")
+            .setTooltipText(WatsonMessageBundle.message("markers.function.navigate", keyName))
             .setTargetRenderer() {
                 object : PsiTargetPresentationRenderer<PsiElement>() {
                     override fun getContainerText(element: PsiElement): String {

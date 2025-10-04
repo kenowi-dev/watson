@@ -1,4 +1,4 @@
-package dev.kenowi.watson
+package dev.kenowi.watson.utils
 
 import com.intellij.lang.javascript.psi.JSCallExpression
 import com.intellij.lang.javascript.psi.JSObjectLiteralExpression
@@ -8,14 +8,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiElement
 import com.jetbrains.rd.util.first
-import dev.kenowi.watson.services.InlangSettingsService
-import dev.kenowi.watson.services.NotificationService
+import dev.kenowi.watson.services.ParaglideSettingsService
+import dev.kenowi.watson.services.WatsonNotificationService
 import dev.kenowi.watson.settings.WatsonSettings
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.io.IOException
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlin.collections.get
+import kotlin.collections.iterator
 
 object MessageUtils {
 
@@ -36,7 +45,7 @@ object MessageUtils {
     }
 
     fun loadBaseLocaleMessages(project: Project): Map<String, String> {
-        val inlangService = InlangSettingsService.getInstance(project)
+        val inlangService = ParaglideSettingsService.getInstance(project)
         val messagesPath = inlangService.getBaseLocaleMessageFilePath() ?: return mutableMapOf()
 
         val messagesFile = LocalFileSystem.getInstance().findFileByPath(messagesPath)
@@ -56,7 +65,7 @@ object MessageUtils {
                         for ((key, value) in rootObject) {
                             val msg = parseMessageObject(value)
                             if (msg == null) {
-                                NotificationService.getInstance(project).error("Unsupported message format: $key")
+                                WatsonNotificationService.getInstance(project).error("Unsupported message format: $key")
                                 continue
                             }
                             messages[key] = msg

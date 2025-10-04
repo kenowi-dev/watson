@@ -1,4 +1,4 @@
-package dev.kenowi.watson.navigation
+package dev.kenowi.watson.utils
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
@@ -7,13 +7,13 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
-import dev.kenowi.watson.services.InlangSettingsService
+import dev.kenowi.watson.services.ParaglideSettingsService
 
-object MessageNameIndex {
+object ParaglideMessageKeyIndex {
 
     fun findMessageNames(name: String, project: Project): List<JsonProperty> {
 
-        val messageFilesPaths = InlangSettingsService.getInstance(project).getLocaleMessagesFilePaths().values
+        val messageFilesPaths = ParaglideSettingsService.getInstance(project).getLocaleMessagesFilePaths().values
 
         val result = ArrayList<JsonProperty>()
 

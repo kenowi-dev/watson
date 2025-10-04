@@ -3,11 +3,8 @@ package dev.kenowi.watson.services
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.javascript.nodejs.NodeCommandLineUtil
-import com.intellij.javascript.nodejs.interpreter.NodeCommandLineConfigurator
 import com.intellij.javascript.nodejs.interpreter.NodeJsInterpreter
 import com.intellij.javascript.nodejs.interpreter.NodeJsInterpreterManager
-import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -17,6 +14,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import dev.kenowi.watson.WatsonMessageBundle
 import dev.kenowi.watson.settings.WatsonSettings
 import java.nio.charset.StandardCharsets
 
@@ -37,7 +35,7 @@ internal class InlangSdkService(private val project: Project) {
                 "compile-inlang-messages",
                 project,
                 listOf(),
-                "Compile Inlang Messages"
+                WatsonMessageBundle.message("service.compile.title")
             )
         }
     }
@@ -47,52 +45,23 @@ internal class InlangSdkService(private val project: Project) {
             val processHandler = CapturingProcessHandler(compileMessageCommandLine())
             val output = processHandler.runProcess(10000)
             if (output.exitCode != 0) {
-                Messages.showErrorDialog(project, "error compiling messages: " + output.stderr, "Error")
+                Messages.showErrorDialog(project, WatsonMessageBundle.message("service.compile.error", output.stderr), "Error")
                 return@executeOnPooledThread
             }
 
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup("Watson Notifications")
-                .createNotification(
-                    "Watson",
-                    "Messages compiled successfully",
-                    NotificationType.INFORMATION
-                )
-                .notify(project)
+            WatsonNotificationService
+                .getInstance(project)
+                .info(WatsonMessageBundle.message("service.compile.success"))
         }
-    }
-
-
-    fun executeInlineScript(): String? {
-        val interpreter = getNodeInterpreter()
-        val configurator = NodeCommandLineConfigurator.find(interpreter)
-        val commandLine = GeneralCommandLine()
-        configurator.configure(commandLine)
-
-
-        commandLine.addParameter("--eval")
-        commandLine.addParameter("import { humanId } from '@inlang/sdk'; console.log(humanId());")
-        commandLine.setWorkDirectory(project.basePath)
-
-        val processHandler = CapturingProcessHandler(commandLine)
-        // This is slow when the node interpreter is on windows and the project is on WSL.
-        val output = processHandler.runProcess(10000)
-
-
-        if (output.getExitCode() != 0) {
-            Messages.showErrorDialog(project, "error creating humanId from sdk: " + output.stderr, "Error")
-            return null
-        }
-
-        return output.stdout.trim { it <= ' ' }
     }
 
     private fun getNodeInterpreter(): NodeJsInterpreter {
         val interpreter = NodeJsInterpreterManager.getInstance(project).interpreter
         if (interpreter == null) {
             // Handle case where no Node interpreter is configured
-            Messages.showErrorDialog(project, "No Node.js interpreter configured for this project", "Error")
-            throw IllegalStateException("Node.js interpreter not configured.")
+
+            Messages.showErrorDialog(project, WatsonMessageBundle.message("service.node.missing"), "Error")
+            throw IllegalStateException(WatsonMessageBundle.message("service.node.missing"))
         }
         return interpreter
     }

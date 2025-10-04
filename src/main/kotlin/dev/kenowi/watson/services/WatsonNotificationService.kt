@@ -5,19 +5,20 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import dev.kenowi.watson.WatsonMessageBundle
 
 @Service(Service.Level.PROJECT)
-internal class NotificationService(private val project: Project) {
+internal class WatsonNotificationService(private val project: Project) {
 
     companion object {
-        fun getInstance(project: Project): NotificationService = project.service()
+        fun getInstance(project: Project): WatsonNotificationService = project.service()
     }
 
     fun info(msg: String) {
         NotificationGroupManager.getInstance()
             .getNotificationGroup("Watson Notifications")
             .createNotification(
-                "Watson",
+                WatsonMessageBundle.message("name"),
                 msg,
                 NotificationType.INFORMATION
             )
@@ -28,7 +29,7 @@ internal class NotificationService(private val project: Project) {
         NotificationGroupManager.getInstance()
             .getNotificationGroup("Watson Notifications")
             .createNotification(
-                "Watson",
+                WatsonMessageBundle.message("name"),
                 msg,
                 NotificationType.WARNING
             )
@@ -39,7 +40,7 @@ internal class NotificationService(private val project: Project) {
         NotificationGroupManager.getInstance()
             .getNotificationGroup("Watson Notifications")
             .createNotification(
-                "Watson",
+                WatsonMessageBundle.message("name"),
                 msg,
                 NotificationType.ERROR
             )

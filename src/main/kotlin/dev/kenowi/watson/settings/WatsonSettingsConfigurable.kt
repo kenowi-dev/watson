@@ -5,17 +5,21 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.dsl.builder.COLUMNS_LARGE
+import com.intellij.ui.dsl.builder.bindSelected
+import com.intellij.ui.dsl.builder.bindText
+import com.intellij.ui.dsl.builder.columns
+import com.intellij.ui.dsl.builder.panel
 import dev.kenowi.watson.WatsonMessageBundle
 
-private class SettingConfigurable(private val project: Project) :
+class WatsonSettingsConfigurable(private val project: Project):
     BoundConfigurable(WatsonMessageBundle.message("name")) {
 
     @Suppress("UnstableApiUsage")
     override fun createPanel(): DialogPanel {
         val settings = WatsonSettings.getInstance(project)
         return panel {
-            row("Inlang Project Location:") {
+            row(WatsonMessageBundle.message("settings.paraglide.project.location")) {
                 textFieldWithBrowseButton(
                     fileChooserDescriptor = FileChooserDescriptorFactory.singleDir(),
                     project = project,
@@ -24,7 +28,7 @@ private class SettingConfigurable(private val project: Project) :
                     .bindText(settings::inlangProject)
             }
 
-            row("Inlang Output Directory:") {
+            row(WatsonMessageBundle.message("settings.paraglide.output.location")) {
                 textFieldWithBrowseButton(
                     fileChooserDescriptor = FileChooserDescriptorFactory.singleDir(),
                     project = project,
@@ -33,12 +37,7 @@ private class SettingConfigurable(private val project: Project) :
                     .bindText(settings::inlangOutDir)
             }
 
-            row("HumanID:") {
-                checkBox("")
-                    .bindSelected(settings::humanID)
-            }
-
-            row("Use inlay hints instead:") {
+            row(WatsonMessageBundle.message("settings.inlay.hints")) {
                 checkBox("")
                     .bindSelected(settings::useInlayHints)
             }

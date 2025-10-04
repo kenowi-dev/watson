@@ -1,4 +1,4 @@
-package dev.kenowi.watson.intention
+package dev.kenowi.watson.utils
 
 import com.intellij.lang.javascript.psi.JSLiteralExpression
 import com.intellij.lang.javascript.psi.ecma6.TypeScriptLiteralType
@@ -8,8 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlAttributeValue
 import com.intellij.psi.xml.XmlText
 
-
-object IntentionUtils {
+object StringLiteralUtils {
 
     data class StringLiteralInfo(
         val element: PsiElement,

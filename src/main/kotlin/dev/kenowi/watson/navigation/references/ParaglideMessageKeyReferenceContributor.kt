@@ -17,10 +17,10 @@ import com.intellij.psi.PsiReferenceProvider
 import com.intellij.psi.PsiReferenceRegistrar
 import com.intellij.psi.ResolveResult
 import com.intellij.util.ProcessingContext
-import dev.kenowi.watson.navigation.JsFunctionUsageIndex
-import dev.kenowi.watson.services.InlangSettingsService
+import dev.kenowi.watson.utils.ParaglideFunctionUsageIndex
+import dev.kenowi.watson.services.ParaglideSettingsService
 
-class JsonKeyReferenceContributor : PsiReferenceContributor() {
+class ParaglideMessageKeyReferenceContributor : PsiReferenceContributor() {
 
     class JsonKeyToJsFunctionReference(
         element: JsonStringLiteral,
@@ -36,7 +36,7 @@ class JsonKeyReferenceContributor : PsiReferenceContributor() {
             }
 
             val project = myElement.project
-            val results = JsFunctionUsageIndex.findFunctionCallsByName(project, key)
+            val results = ParaglideFunctionUsageIndex.findFunctionCallsByName(project, key)
 
             return results.map { PsiElementResolveResult(it) }.toTypedArray()
         }
@@ -62,7 +62,7 @@ class JsonKeyReferenceContributor : PsiReferenceContributor() {
                     .with(object : PatternCondition<PsiFile>("filePathMatches") {
                         override fun accepts(file: PsiFile, context: ProcessingContext?): Boolean {
                             val vFile = file.virtualFile ?: return false
-                            val messageFilePaths = InlangSettingsService
+                            val messageFilePaths = ParaglideSettingsService
                                 .getInstance(file.project)
                                 .getLocaleMessagesFilePaths()
                                 .values

@@ -6,11 +6,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.endOffset
-import dev.kenowi.watson.MessageUtils
+import dev.kenowi.watson.utils.MessageUtils
 import dev.kenowi.watson.settings.WatsonSettings
 
 
-class ParaglideInlayHints : InlayHintsProvider {
+class ParaglideMessageInlayHints : InlayHintsProvider {
 
     override fun createCollector(file: PsiFile, editor: Editor): InlayHintsCollector? {
         val settings = WatsonSettings.getInstance(file.project)

@@ -8,12 +8,11 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiElementVisitor
-import dev.kenowi.watson.navigation.JsFunctionUsageIndex
+import dev.kenowi.watson.WatsonMessageBundle
+import dev.kenowi.watson.utils.ParaglideFunctionUsageIndex
 
-class UnusedJsonKeyInspection : LocalInspectionTool() {
+class UnusedParaglideMessageInspection : LocalInspectionTool() {
 
-    override fun getDisplayName(): String = "Unused JSON Key"
-    override fun getShortName(): String = "UnusedJsonKey"
     override fun isEnabledByDefault(): Boolean = true
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
@@ -27,11 +26,11 @@ class UnusedJsonKeyInspection : LocalInspectionTool() {
                 val keyName = property.name
                 val project = property.project
 
-                val usages = JsFunctionUsageIndex.findFunctionCallsByName(project, keyName)
+                val usages = ParaglideFunctionUsageIndex.findFunctionCallsByName(project, keyName)
                 if (usages.isEmpty()) {
                     holder.registerProblem(
                         property.nameElement,
-                        "Key '$keyName' is not used",
+                        WatsonMessageBundle.message("inspection.description.template", keyName),
                         ProblemHighlightType.LIKE_UNUSED_SYMBOL
                     )
                 }

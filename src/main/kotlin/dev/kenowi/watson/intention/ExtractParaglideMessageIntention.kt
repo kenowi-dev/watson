@@ -18,13 +18,15 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.util.Alarm
+import dev.kenowi.watson.WatsonMessageBundle
 import dev.kenowi.watson.services.InlangSdkService
-import dev.kenowi.watson.services.InlangSettingsService
-import dev.kenowi.watson.services.NotificationService
+import dev.kenowi.watson.services.ParaglideSettingsService
+import dev.kenowi.watson.services.WatsonNotificationService
 import dev.kenowi.watson.settings.WatsonSettings
+import dev.kenowi.watson.utils.StringLiteralUtils
 import java.util.concurrent.TimeUnit
 
-class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
+class ExtractParaglideMessageIntention : BaseElementAtCaretIntentionAction() {
 
     @FileModifier.SafeFieldForPreview
     private val humanID: HumanID = HumanID()
@@ -34,7 +36,7 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
     }
 
     override fun getFamilyName(): String {
-        return "Extract inlang message"
+        return WatsonMessageBundle.message("intention.family.name")
     }
 
     override fun isAvailable(
@@ -43,10 +45,10 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         element: PsiElement
     ): Boolean {
         try {
-            if (!IntentionUtils.isJavaScriptFamily(element.containingFile)) {
+            if (!StringLiteralUtils.isJavaScriptFamily(element.containingFile)) {
                 return false
             }
-            val stringLiteral = IntentionUtils.findStringLiteral(element) ?: return false
+            val stringLiteral = StringLiteralUtils.findStringLiteral(element) ?: return false
             return stringLiteral.content.trim().isNotEmpty()
                     && stringLiteral.startOffset < stringLiteral.endOffset
             //throw IllegalStateException("Cannot operate on empty text range")
@@ -63,14 +65,14 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         }
         val selection = getSelection(editor, element)
 
-        val dialog = HumanIdOptionsDialog(project, selection.text)
+        val dialog = ExtractionDialog(project, selection.text)
         if (!dialog.showAndGet()) {
             return // User cancelled
         }
 
         val methodName = dialog.methodName
-        val localeMessagesFilePaths = InlangSettingsService.getInstance(project).getLocaleMessagesFilePaths()
-        val locales = InlangSettingsService.getInstance(project).getSettings()?.locales
+        val localeMessagesFilePaths = ParaglideSettingsService.getInstance(project).getLocaleMessagesFilePaths()
+        val locales = ParaglideSettingsService.getInstance(project).getSettings()?.locales
         for (locale in locales ?: emptyList()) {
             val messageObject = localeMessagesFilePaths[locale]
                 ?.let { LocalFileSystem.getInstance().findFileByPath(it) }
@@ -80,9 +82,9 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
                 ?.let { it.topLevelValue as? JsonObject }
 
             if (messageObject == null) {
-                NotificationService
+                WatsonNotificationService
                     .getInstance(project)
-                    .warn("Error getting message file: $locale")
+                    .warn(WatsonMessageBundle.message("intention.error.file", locale))
                 return
             }
             val newMessage = JsonElementGenerator(project)
@@ -103,7 +105,7 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
             val params = parameterString(calculateParameters(dialog.translations), dialog.translations.hasPlural())
 
             val message = when {
-                IntentionUtils.needsSvelteWrapping(element) -> "{m.$methodName($params)}"
+                StringLiteralUtils.needsSvelteWrapping(element) -> "{m.$methodName($params)}"
                 else -> "m.$methodName($params)"
             }
 
@@ -119,7 +121,7 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
         val humanID = humanID.generate()
         val params = parameterString(calculateParameters(selection.text), false)
         val message = when {
-            IntentionUtils.needsSvelteWrapping(element) -> "{m.$humanID($params)}"
+            StringLiteralUtils.needsSvelteWrapping(element) -> "{m.$humanID($params)}"
             else -> "m.$humanID($params)"
         }
         editor.document.replaceString(selection.start, selection.end, message)
@@ -136,7 +138,7 @@ class ExtractInlangMessageIntention : BaseElementAtCaretIntentionAction() {
             return Selection(selectionModel.selectionStart, selectionModel.selectionEnd, selectedText)
         }
 
-        val effectiveElement = IntentionUtils.findStringLiteral(element)!!
+        val effectiveElement = StringLiteralUtils.findStringLiteral(element)!!
 
         return Selection(effectiveElement.startOffset, effectiveElement.endOffset, effectiveElement.content)
     }

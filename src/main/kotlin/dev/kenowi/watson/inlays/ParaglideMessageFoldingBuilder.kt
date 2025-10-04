@@ -7,10 +7,10 @@ import com.intellij.lang.javascript.psi.JSCallExpression
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
-import dev.kenowi.watson.MessageUtils
+import dev.kenowi.watson.utils.MessageUtils
 import dev.kenowi.watson.settings.WatsonSettings
 
-class ParaglideFoldingBuilder : FoldingBuilderEx() {
+class ParaglideMessageFoldingBuilder : FoldingBuilderEx() {
 
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<FoldingDescriptor> {
         val settings = WatsonSettings.getInstance(root.project)

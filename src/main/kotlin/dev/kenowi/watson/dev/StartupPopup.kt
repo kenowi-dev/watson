@@ -1,4 +1,4 @@
-package dev.kenowi.watson.listeners
+package dev.kenowi.watson.dev
 
 import com.intellij.lang.Language
 import com.intellij.notification.NotificationGroupManager

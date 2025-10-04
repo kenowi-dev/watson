@@ -6,19 +6,19 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.not
-import dev.kenowi.watson.services.InlangSettingsService
+import dev.kenowi.watson.WatsonMessageBundle
+import dev.kenowi.watson.services.ParaglideSettingsService
 import java.util.*
 import javax.swing.JComponent
 
-class HumanIdOptionsDialog(val project: Project, val selection: String) : DialogWrapper(true) {
+class ExtractionDialog(val project: Project, val selection: String) : DialogWrapper(true) {
 
     companion object {
         private val ID_GENERATOR: HumanID = HumanID()
-        private const val TITLE = "Human Id"
     }
 
-    private val inlangSettingsService = InlangSettingsService.getInstance(project)
-    private val inlangSettings = inlangSettingsService.getSettings()
+    private val paraglideSettingsService = ParaglideSettingsService.getInstance(project)
+    private val inlangSettings = paraglideSettingsService.getSettings()
     private val baseLocale = inlangSettings?.baseLocale ?: "en"
 
     var methodName: String = ID_GENERATOR.generate()
@@ -26,7 +26,7 @@ class HumanIdOptionsDialog(val project: Project, val selection: String) : Dialog
 
     init {
         init()
-        title = TITLE
+        title = WatsonMessageBundle.message("intention.dialog.title")
     }
 
     fun previewString(txt: String): String = "<html><code>m.${txt}()</code></html>"
@@ -35,22 +35,24 @@ class HumanIdOptionsDialog(val project: Project, val selection: String) : Dialog
         val propertyGraph = PropertyGraph()
         return panel {
 
-            group("Function Name") {
-                val methodNameProperty = propertyGraph.property(this@HumanIdOptionsDialog.methodName)
+            group(WatsonMessageBundle.message("intention.dialog.function.name")) {
+                val methodNameProperty = propertyGraph.property(this@ExtractionDialog.methodName)
                 methodNameProperty.afterChange { methodName = it }
 
-                row("Extracted function name") {
+                row(WatsonMessageBundle.message("intention.dialog.function.extracted")) {
                     textField()
                         .bindText(methodNameProperty)
                         .validationOnInput {
                             when {
-                                it.text.isEmpty() -> error("Name must not be empty")
-                                it.text.matches(Regex("^[0-9].*")) -> error("Cannot start with a number")
-                                !it.text.matches(Regex("^[a-z_][a-z_0-9]*$")) -> error("Name must only contain 'a-z' and '_' (snake_case)")
+                                it.text.isEmpty() -> error(WatsonMessageBundle.message("intention.dialog.error.empty"))
+                                it.text.matches(Regex("^[0-9].*")) -> error(WatsonMessageBundle.message("intention.dialog.error.number"))
+                                !it.text.matches(Regex("^[a-z_][a-z_0-9]*$")) -> error(WatsonMessageBundle.message("intention.dialog.error.pattern"))
                                 else -> null
                             }
                         }
-                    button("Generate New ID") { methodNameProperty.set(ID_GENERATOR.generate()) }
+                    button(WatsonMessageBundle.message("intention.dialog.function.generate")) {
+                        methodNameProperty.set(ID_GENERATOR.generate())
+                    }
                 }
 
 
@@ -64,7 +66,7 @@ class HumanIdOptionsDialog(val project: Project, val selection: String) : Dialog
                 }
             }
 
-            group("Translations") {
+            group(WatsonMessageBundle.message("intention.dialog.translations")) {
 
                 for (locale in inlangSettings?.locales ?: listOf()) {
                     val msgSingular = propertyGraph.property(translations.get(locale).singular)
@@ -78,7 +80,7 @@ class HumanIdOptionsDialog(val project: Project, val selection: String) : Dialog
 
                     group("$locale - $localeName") {
                         row {
-                            plural = checkBox("Plural")
+                            plural = checkBox(WatsonMessageBundle.message("intention.dialog.translations.plural"))
                                 .selected(translations.get(locale).pluralEnabled)
                                 .onChanged { translations.enablePlural(locale, it.isSelected) }
                         }
@@ -88,13 +90,13 @@ class HumanIdOptionsDialog(val project: Project, val selection: String) : Dialog
                                 .columns(COLUMNS_MEDIUM)
                         }.visibleIf(plural.selected.not())
 
-                        row("Singular") {
+                        row(WatsonMessageBundle.message("intention.dialog.translations.singular")) {
                             textField()
                                 .bindText(msgSingular)
                                 .columns(COLUMNS_MEDIUM)
                         }.visibleIf(plural.selected)
 
-                        row("Plural") {
+                        row(WatsonMessageBundle.message("intention.dialog.translations.plural")) {
                             textField()
                                 .bindText(msgPlural)
                                 .columns(COLUMNS_MEDIUM)
