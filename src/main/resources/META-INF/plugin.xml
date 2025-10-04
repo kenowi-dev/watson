@@ -7,7 +7,6 @@
 
     <depends>JavaScript</depends>
     <depends>dev.blachut.svelte.lang</depends>
-    <depends>JavaScript</depends>
     <depends>NodeJS</depends>
     <depends>com.intellij.modules.platform</depends>
 
