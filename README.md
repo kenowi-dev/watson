@@ -17,10 +17,10 @@ It offers the following Features:
 - [x] Unused message key inspection
 - [x] Line markers for message methods and keys
 - [x] Ctrl + clickable message keys
+<!-- Plugin description end -->
 - [ ] Message key renaming
 - [ ] More message variant options
 - [ ] Message recompilation
-<!-- Plugin description end -->
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
