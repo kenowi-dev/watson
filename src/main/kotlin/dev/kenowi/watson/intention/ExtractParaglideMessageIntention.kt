@@ -159,6 +159,9 @@ class ExtractParaglideMessageIntention : BaseElementAtCaretIntentionAction() {
     }
 
     private fun parameterString(params: Set<String>, hasPlural: Boolean): String {
+        if (params.isEmpty()) {
+            return ""
+        }
         return params
             .plus(if (hasPlural) setOf("count") else emptySet())
             .joinToString(", ", "{ ", " }") {

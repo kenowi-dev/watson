@@ -9,6 +9,7 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiElement
+import com.intellij.util.indexing.FileBasedIndexExtension
 import dev.kenowi.watson.WatsonMessageBundle
 import dev.kenowi.watson.utils.ParaglideFunctionUsageIndex
 import dev.kenowi.watson.services.ParaglideSettingsService
@@ -36,7 +37,7 @@ class ParaglideMessageKeyLineMarkerProvider : RelatedItemLineMarkerProvider() {
         }
 
         val keyName = element.name
-        val findFunctionCallsByName = ParaglideFunctionUsageIndex.findFunctionCallsByName(element.project, keyName)
+        val findFunctionCallsByName = ParaglideFunctionUsageIndex.findFunctionCallsByName2(element.project, keyName)
 
         if (findFunctionCallsByName.isEmpty()) {
             return

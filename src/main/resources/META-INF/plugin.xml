@@ -37,6 +37,7 @@
             <className>dev.kenowi.watson.intention.ExtractParaglideMessageIntention</className>
         </intentionAction>
 
+        <fileBasedIndex implementation="dev.kenowi.watson.indexes.ParaglideFunctionCallIndex"/>
 
         <codeInsight.declarativeInlayProvider group="VALUES_GROUP"
                                               implementationClass="dev.kenowi.watson.inlays.ParaglideMessageInlayHints"
